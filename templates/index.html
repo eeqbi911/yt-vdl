@@ -845,12 +845,17 @@ async function startDownload() {
   const url = document.getElementById('urlInput').value.trim();
   const formatId = document.getElementById('formatSelect').value;
   const ext = document.getElementById('extSelect').value;
+  // 优先使用解析出的直链，抖音/快手等平台需要用直链下载
+  // 对于抖音/快手等，yt-dlp需要原始页面URL+cookie，不是CDN直链
+  const videoUrl = (parsedVideo.platform === "douyin" || parsedVideo.platform === "kuaishou")
+    ? url  // 用原始页面URL让yt-dlp处理
+    : (parsedVideo.video_url || parsedVideo.webpage_url || url);
 
   try {
     const res = await fetch(`${API}/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, format_id: formatId, ext })
+      body: JSON.stringify({ url, video_url: videoUrl, format_id: formatId, ext })
     });
     const data = await res.json();
     if (!res.ok) { toast(data.error || '下载失败', 'error'); return; }
@@ -1223,7 +1228,7 @@ async function addSubscription() {
   errEl.textContent = '';
 
   try {
-    const res = await fetch(`${API}/subscription`, {
+    const res = await fetch(`${API}/subscriptions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, url, format_id })

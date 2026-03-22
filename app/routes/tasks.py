@@ -14,10 +14,33 @@ tasks_bp = Blueprint("tasks", __name__)
 def api_parse():
     """解析视频 URL"""
     data = request.get_json()
-    url = data.get("url", "").strip()
+    raw = data.get("url", "").strip()
 
-    if not url:
+    if not raw:
         return jsonify({"error": "请输入视频链接"}), 400
+
+    from urllib.parse import urlparse, parse_qs, urlunparse
+    try:
+        parsed = urlparse(raw)
+        # B站短链 b23.tv - httpx可以处理
+        if parsed.netloc == "b23.tv":
+            import httpx
+            try:
+                resp = httpx.get(raw, timeout=5, follow_redirects=True)
+                raw = str(resp.url)
+                parsed = urlparse(raw)
+            except Exception:
+                pass
+        # 抖音短链 v.douyin.com - 不能用httpx，会被拦截，直接传给Playwright处理
+        # 其他URL - 清理查询参数，只保留必要字段
+        if "v.douyin.com" not in parsed.netloc and parsed.query:
+            qs = parse_qs(parsed.query)
+            keep = ["vid", "aweme_id", "video_id"]
+            clean_query = "&".join(f"{k}={v[0]}" for k, vs in qs.items() for v in [vs] if k in keep)
+            raw = urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, clean_query, ""))
+        url = raw
+    except Exception:
+        url = raw
 
     result = parse_video(url)
 
@@ -34,11 +57,13 @@ def api_download():
     url = data.get("url", "").strip()
     format_id = data.get("format_id", "best")
     title = data.get("title", "")
+    # 优先使用直链（如抖音/快手），没有就用原始url
+    video_url = data.get("video_url") or url
 
     if not url:
         return jsonify({"error": "请输入视频链接"}), 400
 
-    task_id = create_task(url, format_id, title)
+    task_id = create_task(video_url, format_id, title)
     return jsonify({"task_id": task_id, "status": "pending"})
 
 
