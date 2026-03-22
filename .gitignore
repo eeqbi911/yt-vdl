@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 数据文件
+*.db
+*.sqlite
+*.sqlite3
+downloads/
+data/
+
+# 日志
+*.log
+logs/
+
+# Docker
+.docker/
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+.AppleDouble

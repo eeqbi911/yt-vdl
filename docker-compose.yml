@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  yt-vdl:
+    build: .
+    container_name: yt-vdl
+    ports:
+      - "5088:5000"
+    volumes:
+      - ./downloads:/app/downloads
+      - ./data:/app/data
+    environment:
+      - SECRET_KEY=yt-vdl-secret-2026
+      - DOWNLOAD_DIR=/app/downloads
+      - DATABASE_PATH=/app/data/subscriptions.db
+      - MAX_CONCURRENT_DOWNLOADS=3
+      - PORT=5000
+      # 抖音 Cookie（可选）
+      # - DOUYIN_MS_TOKEN=your_ms_token
+      # - DOUYIN_TTWID=your_ttwid
+      # - DOUYIN_ODIN_TT=your_odin_tt
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
