@@ -698,7 +698,8 @@ function toggleSidebar() {
 
 // ==================== 页面导航 ====================
 function navigate(page) {
-  event && event.preventDefault();
+  console.log('navigate called:', page);
+  if (event) event.preventDefault();
   currentPage = page;
   // 更新侧边栏激活状态
   document.querySelectorAll('.nav-item').forEach(el => {
