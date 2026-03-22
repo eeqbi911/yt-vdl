@@ -13,7 +13,9 @@ def create_app(config_class=Config):
 
     # 注册蓝图
     from app.routes.tasks import tasks_bp
+    from app.routes.subscriptions import subscriptions_bp
     app.register_blueprint(tasks_bp, url_prefix='/api')
+    app.register_blueprint(subscriptions_bp, url_prefix='/api')
 
     # 页面路由
     @app.route('/')
@@ -30,6 +32,7 @@ def create_app(config_class=Config):
             "platform": "Linux",
             "download_dir": app.config["DOWNLOAD_DIR"],
             "max_concurrent": app.config["MAX_CONCURRENT"],
+            "douyin_supported": True,
         })
 
     @app.route('/api/health')

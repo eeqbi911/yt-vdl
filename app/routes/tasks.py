@@ -89,6 +89,7 @@ def api_download_file(task_id):
 
 @tasks_bp.route("/tasks/clear-completed", methods=["POST"])
 def api_clear_completed():
+    """清除已完成任务（/api/tasks/clear-completed）"""
     """清除已完成任务"""
     from app.downloader.engine import tasks, tasks_lock
 
